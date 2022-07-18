@@ -1,7 +1,12 @@
 #include <ros/ros.h>
+#include <ros/package.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
+
+
+#include <fstream>
+#include <iostream>
 
 using namespace std;
 
@@ -23,12 +28,19 @@ public:
 
     void spin()
     {
+        string file_path = ros::package::getPath("localization_test") + "/paths/path.txt"; 
+        ofstream fout(file_path);
+
         while(ros::ok())
         {
             ros::spinOnce();
             path_pub.publish(path);
+            if(posestamped.pose.position.x != 0.0 && posestamped.pose.position.y != 0.0)
+                fout << posestamped.pose.position.x << " " << posestamped.pose.position.y << "\n";
             loop_rate.sleep();
         }
+
+        fout.close();
     }
 
     void initPath(void)
